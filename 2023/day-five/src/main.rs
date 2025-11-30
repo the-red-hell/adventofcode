@@ -44,7 +44,8 @@ fn get_nearest_location1(content: String) -> usize {
         for item in table.iter().take(7) {
             let mut i: Option<(usize, usize)> = None;
             item.0.iter().enumerate().for_each(|(k, x)| {
-                if let Some((j, _)) = (x.0..x.1).find_position(|x| x == &previous) {
+                if x.0 <= previous && previous <= x.1 {
+                    let (j, _) = (x.0..x.1).find_position(|x| x == &previous).unwrap();
                     i = Some((k, j));
                 }
             });
@@ -96,7 +97,8 @@ fn get_nearest_location2(content: String) -> usize {
         for item in table.iter().take(7) {
             let mut i: Option<(usize, usize)> = None;
             item.0.iter().enumerate().for_each(|(k, x)| {
-                if let Some((j, _)) = (x.0..x.1).find_position(|x| x == &previous) {
+                if x.0 <= previous && previous <= x.1 {
+                    let (j, _) = (x.0..=x.1).find_position(|x| x == &previous).unwrap();
                     i = Some((k, j));
                 }
             });
@@ -106,8 +108,6 @@ fn get_nearest_location2(content: String) -> usize {
                 previous = value;
             }
         }
-
-        // println!("{}", previous);
 
         if previous < locations {
             locations = previous;
