@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{self, BufReader, Read},
+    io::{self, Read},
 };
 
 #[derive(Debug)]
@@ -47,9 +47,10 @@ impl PaperRollGrid {
         }
     }
 
-    /// this is hell
-    fn num_forklift_can_access(self) -> usize {
+    /// this is hell, don't have time rn tbh, it's still very fast tbh
+    fn num_forklift_can_access_p1(&self) -> usize {
         let mut number = 0;
+
         for (line_index, line) in self.grid.iter().enumerate().skip(1).take(self.height) {
             for (item_index, _) in line
                 .into_iter()
@@ -81,8 +82,68 @@ impl PaperRollGrid {
                     bottom_right,
                 ];
                 if adjacent.iter().filter(|item| **item).count() < 4 {
-                    number += 1
+                    number += 1;
                 }
+            }
+        }
+
+        number
+    }
+
+    /// this is hell, don't have time rn tbh, it's still very fast tbh
+    fn num_forklift_can_access_p2(&mut self) -> usize {
+        let mut number = 0;
+
+        loop {
+            let (mut line_i_to_remove, mut item_i_to_remove) = (Vec::new(), Vec::new());
+
+            for (line_index, line) in self.grid.iter().enumerate().skip(1).take(self.height) {
+                for (item_index, _) in line
+                    .into_iter()
+                    .enumerate()
+                    .skip(1)
+                    .take(self.width)
+                    .filter(|(_, item)| **item)
+                {
+                    let top_left = self.grid[line_index - 1][item_index - 1];
+                    let top_middle = self.grid[line_index - 1][item_index];
+                    let top_right = self.grid[line_index - 1][item_index + 1];
+
+                    let left = self.grid[line_index][item_index - 1];
+                    let right = self.grid[line_index][item_index + 1];
+
+                    let bottom_left = self.grid[line_index + 1][item_index - 1];
+                    let bottom_middle = self.grid[line_index + 1][item_index];
+                    let bottom_right = self.grid[line_index + 1][item_index + 1];
+                    // oh man
+
+                    let adjacent = [
+                        top_left,
+                        top_middle,
+                        top_right,
+                        left,
+                        right,
+                        bottom_left,
+                        bottom_middle,
+                        bottom_right,
+                    ];
+                    if adjacent.iter().filter(|item| **item).count() < 4 {
+                        number += 1;
+                        line_i_to_remove.push(line_index);
+                        item_i_to_remove.push(item_index);
+                    }
+                }
+            }
+
+            if line_i_to_remove.is_empty() {
+                break;
+            }
+
+            for (line_i, item_i) in line_i_to_remove
+                .into_iter()
+                .zip(item_i_to_remove.into_iter())
+            {
+                self.grid[line_i][item_i] = false;
             }
         }
 
@@ -95,8 +156,9 @@ fn main() -> io::Result<()> {
     let mut str_buf = String::new();
     file.read_to_string(&mut str_buf)?;
 
-    let paper_roll_grid = PaperRollGrid::new(str_buf);
-    let number_accessable_rolls = paper_roll_grid.num_forklift_can_access();
+    let mut paper_roll_grid = PaperRollGrid::new(str_buf);
+    // Change `_p2` to `_p1` for part one
+    let number_accessable_rolls = paper_roll_grid.num_forklift_can_access_p2();
 
     println!(
         "The forklift can access {} paper rolls.",
